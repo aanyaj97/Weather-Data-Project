@@ -42,15 +42,15 @@ def parse_file(file): #parses one of the datastations files to create a numpy ar
 dly_delimiter = [11,4,2,4] + [5,1,1,1]*31 #the code is 11 characters, the year is 4, the month is 2, the type of data is 4, the data is 5, the 1,1,1 are for the flags
 dly_usecols = [1,2,3] + [4*i for i in range(1,32)] #we only want the second, third, fourth and fifth elements [0] is not included as we dont need the code
 dly_type = [np.int32, np.int32, (np.str,4)] + [np.int32]*31 #the year, month are integers, the data type is string, and the data is also an integer and there are *31 entries
-dly_names = ['year', 'month','obs'] + [str(day) for day in range(1,32)]
+dly_names = ['year', 'month','obs'] + [str(day) for day in range(1,32)] #names of fields are yr,mth,observed data, and day number
 
-lihue = parse_file('USW00022536.dly')
+#lihue = parse_file('USW00022536.dly')
 
-def unroll(data):
-    startdate = np.datetime64('{}-{:02}'.format(data['year'],data['month']))
-    dates = np.arange(startdate,startdate + np.timedelta64(1,'M'),np.timedelta64(1,'D'))
-    rows = [(date,data[str(i+1)]/10) for i,date in enumerate(dates)]
-    return np.array(rows,dtype=[('date','M8[D]'),('value','d')])
+def unroll(data): #function to solve the problem of all of the dates sitting on the same row
+    startdate = np.datetime64('{}-{:02}'.format(data['year'],data['month'])) #definites startdate object as np date type yyyy-mm-dd
+    dates = np.arange(startdate,startdate + np.timedelta64(1,'M'),np.timedelta64(1,'D')) #creates range of dates from start date of month to one month from then with intervals of 1 day
+    rows = [(date,data[str(i+1)]/10) for i,date in enumerate(dates)] #defines rows as list of tuples of the day number, and the observed data pulled from the fed row of the file
+    return np.array(rows,dtype=[('date','M8[D]'),('value','d')]) #
 
 #unroll(lihue[0])
 
