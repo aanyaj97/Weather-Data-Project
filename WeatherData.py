@@ -6,7 +6,7 @@ import urllib.request
 #urllib.request.urlretrieve('ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt', 'stations.txt')
 #open('stations.txt','r').readlines()[:10]
 '''
-TASK 1: Convert the data from the txt file into a NumPy array that can be manipulated
+TUTORIAL: TASK 1: Convert the data from the txt file into a NumPy array that can be manipulated
 '''
 stations = {}
 
@@ -62,7 +62,7 @@ def get_obs(filename,obs): #function to get observed data in form that can be ma
 #this creates a full array of the observed data values
 
 '''
-TASK 2: Deal with misleading data (such as -999.9 values) by integrating missing data
+TUTORIAL: TASK 2: Deal with misleading data (such as -999.9 values) by integrating missing data
 '''
 
 '''
@@ -78,12 +78,55 @@ def get_obs(filename,obs): #adjusting original function to get all of the data i
 lihue_tmax = get_obs('USW00022536.dly','TMAX')
 lihue_tmin = get_obs('USW00022536.dly','TMIN')
 
-pp.plot(lihue_tmax['date'],lihue_tmax['value']) #plot the date value components of the data in the file that matches the max temp
-pp.plot(lihue_tmin['date'],lihue_tmin['value']) #plot the date value components of the data in the file that matche the min temp
-pp.show()
+#pp.plot(lihue_tmax['date'],lihue_tmax['value']) #plot the date value components of the data in the file that matches the max temp
+#pp.plot(lihue_tmin['date'],lihue_tmin['value']) #plot the date value components of the data in the file that matche the min temp
+#pp.show()
 
 '''
 Problem: you cannot caclulate a mean as np.mean cannot evaluate NaN values
 
-TASK 2 - Step 2: Replace misleading data with data that can be used in calculations
+TASK 2 - Step 2: Replace misleading data with data that can be used in calculations (using numpy interpolations)
+'''
+
+def fill_nans(data):
+    dates_float = data['date'].astype(np.float64)
+    nan = np.isnan(data['value'])
+    data['value'][nan] = np.interp(dates_float[nan],dates_float[~nan],data['value'][~nan])
+
+fill_nans(lihue_tmax)
+fill_nans(lihue_tmin)
+
+#np.mean(lihue_tmin['value']),np.mean(lihue_tmax['value'])
+
+'''
+TUTORIAL: TASK 3: Smooth the data points' short term fluctuations to help see trends using a running mean
+'''
+
+def plot_smoothed(t,win=10):
+    smoothed = np.correlate(t['value'],np.ones(win)/win,'same')
+
+    pp.plot(t['date'],smoothed)
+
+#plot_smoothed(lihue_tmin)
+pp.plot(lihue_tmin[10000:12000]['date'],lihue_tmin[10000:12000]['value'])
+
+plot_smoothed(lihue_tmin[10000:12000])
+plot_smoothed(lihue_tmin[10000:12000],20)
+pp.show()
+
+pp.figure(figsize=(10,6))
+
+for i,code in enumerate(datastations):
+    pp.subplot(2,2,i+1)
+
+    plot_smoothed(getobs('{}.dly'.format(code),'TMIN'),365)
+    plot_smoothed(getobs('{}.dly'.format(code),'TMAX'),365)
+
+    pp.title(stations[code])
+    pp.axis(xmin=np.datetime64('1952'),xmax=np.datetime64('2012'),ymin=-10,ymax=30)
+
+pp.tight_layout()
+
+'''
+NEED TO COMMENT
 '''
