@@ -58,19 +58,32 @@ def unroll(data): #function to solve the problem of all of the dates sitting on 
 
 def get_obs(filename,obs): #function to get observed data in form that can be manipulated
     return np.concatenate([unroll(row) for row in parse_file(filename) if row[2] == obs])
-#concatenate the arrays all of the values that are accessed using the unroll function of the parsed file as long as the second row of the file is the recorded observed data
+#concatenate the arrays all of the values that are accessed using the unroll function of the parsed file as long as the second row of the file is the requested data type
 #this creates a full array of the observed data values
 
 '''
-TASK 2: Deal with misleading data (such as -999 values) by integrating missing data
+TASK 2: Deal with misleading data (such as -999.9 values) by integrating missing data
 '''
+
+'''
+TASK 2 - Step 1: Remove all misleading data (=-999.9)
+'''
+def get_obs(filename,obs): #adjusting original function to get all of the data in a date/value format
+    data = np.concatenate([unroll(row) for row in parse_file(filename) if row[2] == obs])
+#concatenate the arrays all of the values that are accessed using the unroll function of the parsed file as long as the second row of the file is the requested data type (assign to data variable)
+    data['value'][data['value'] == -999.9] = np.nan
+#for all the values in the array that match -999.9, assign them to a "missing value" aka Not A Number
+    return data #return the data after removing the -999.9 values
 
 lihue_tmax = get_obs('USW00022536.dly','TMAX')
 lihue_tmin = get_obs('USW00022536.dly','TMIN')
 
-pp.plot(lihue_tmax['date'],lihue_tmax['value'])
+pp.plot(lihue_tmax['date'],lihue_tmax['value']) #plot the date value components of the data in the file that matches the max temp
+pp.plot(lihue_tmin['date'],lihue_tmin['value']) #plot the date value components of the data in the file that matche the min temp
 pp.show()
 
 '''
-NEED TO COMMENT
+Problem: you cannot caclulate a mean as np.mean cannot evaluate NaN values
+
+TASK 2 - Step 2: Replace misleading data with data that can be used in calculations
 '''
