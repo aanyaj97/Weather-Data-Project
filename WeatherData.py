@@ -102,31 +102,30 @@ fill_nans(lihue_tmin)
 TUTORIAL: TASK 3: Smooth the data points' short term fluctuations to help see trends using a running mean
 '''
 
-def plot_smoothed(t,win=10):
+def plot_smoothed(t,win=10): #function to calculate runnning averages
     smoothed = np.correlate(t['value'],np.ones(win)/win,'same')
-
-    pp.plot(t['date'],smoothed)
+#create dataset by making each value the average of those in the specified window
+#correlate method first argument is the data to be correlated
+#second argument is the weighting of each datapoint (1/window)
+#third is the length of the returned array ('same' takes the shortest dataset between first and second arguments and uses that length)
+    pp.plot(t['date'],smoothed) #plot the smoothed data and dates
 
 #plot_smoothed(lihue_tmin)
-pp.plot(lihue_tmin[10000:12000]['date'],lihue_tmin[10000:12000]['value'])
+#pp.plot(lihue_tmin[10000:12000]['date'],lihue_tmin[10000:12000]['value'])
 
-plot_smoothed(lihue_tmin[10000:12000])
-plot_smoothed(lihue_tmin[10000:12000],20)
-pp.show()
+#plot_smoothed(lihue_tmin[10000:12000])
+#plot_smoothed(lihue_tmin[10000:12000],20)
+#pp.show()
 
 pp.figure(figsize=(10,6))
 
-for i,code in enumerate(datastations):
-    pp.subplot(2,2,i+1)
+for i,code in enumerate(datastations): #for the 4 datastations, plot the min and max smoothed values over 365 days
+    pp.subplot(2,2,i+1) #plotting layout of 2 columns and two rows and the graph taking the positon of i + 1 (1,2,3,4)
 
-    plot_smoothed(getobs('{}.dly'.format(code),'TMIN'),365)
-    plot_smoothed(getobs('{}.dly'.format(code),'TMAX'),365)
+    plot_smoothed(get_obs('{}.dly'.format(code),'TMIN'),365) #plot the date and smoothed values of tmin for each datastation
+    plot_smoothed(get_obs('{}.dly'.format(code),'TMAX'),365) #plot the date and smoothed values of tmin for each datastation
 
-    pp.title(stations[code])
-    pp.axis(xmin=np.datetime64('1952'),xmax=np.datetime64('2012'),ymin=-10,ymax=30)
+    pp.title(stations[code]) #title each graph with the name of the station
+    pp.axis(xmin=np.datetime64('1952'),xmax=np.datetime64('2012'),ymin=-10,ymax=30) #set the axes min,max so all are plotted over same time range
 
-pp.tight_layout()
-
-'''
-NEED TO COMMENT
-'''
+pp.tight_layout() #adjust spacing between graphs and titles
