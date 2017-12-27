@@ -110,12 +110,15 @@ def plot_smoothed(t,win=10): #function to calculate runnning averages
 #third is the length of the returned array ('same' takes the shortest dataset between first and second arguments and uses that length)
     pp.plot(t['date'],smoothed) #plot the smoothed data and dates
 
-#plot_smoothed(lihue_tmin)
-#pp.plot(lihue_tmin[10000:12000]['date'],lihue_tmin[10000:12000]['value'])
+'''
+TASK 3 - Plots: test plots below but not shown when code is run
+'''
+plot_smoothed(lihue_tmin)
+pp.plot(lihue_tmin[10000:12000]['date'],lihue_tmin[10000:12000]['value'])
 
-#plot_smoothed(lihue_tmin[10000:12000])
-#plot_smoothed(lihue_tmin[10000:12000],20)
-#pp.show()
+plot_smoothed(lihue_tmin[10000:12000])
+plot_smoothed(lihue_tmin[10000:12000],20)
+
 
 pp.figure(figsize=(10,6))
 
@@ -129,3 +132,32 @@ for i,code in enumerate(datastations): #for the 4 datastations, plot the min and
     pp.axis(xmin=np.datetime64('1952'),xmax=np.datetime64('2012'),ymin=-10,ymax=30) #set the axes min,max so all are plotted over same time range
 
 pp.tight_layout() #adjust spacing between graphs and titles
+
+'''
+TUTORIAL: TASK 4: Assess the highest and lowest data (compute daily records)
+'''
+def select_year(data,year):
+    start = np.datetime64('{}'.format(year))
+    end = start + np.timedelta64(1,'Y')
+
+    return data[(data['date'] >= start) & (data['date'] < end)]['value']
+
+lihue_tmin_all = np.vstack(select_year(lihue_tmin, i)[:365] for i in range(1951,2015))
+lihue_tmax_all = np.vstack(select_year(lihue_tmax, i)[:365] for i in range(1951,2015))
+
+#lihue_tmin_all.shape #verifying that the shape is correct (64 years * 365 days)
+
+lihue_tmin_recordmin = np.min(lihue_tmin_all,axis=0)
+lihue_tmin_recordmax = np.max(lihue_tmin_all,axis=0)
+
+lihue_tmax_recordmin = np.min(lihue_tmax_all,axis=0)
+lihue_tmax_recordmax = np.max(lihue_tmax_all,axis=0)
+
+days = np.arange(1,366)
+
+pp.fill_between(days,np.min(lihue_tmin_all,axis=0),np.max(lihue_tmin_all,axis=0),alpha = 0.4)
+pp.plot(select_year(lihue_tmin,2009))
+
+'''
+need to finish comments
+'''
